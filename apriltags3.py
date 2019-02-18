@@ -443,7 +443,7 @@ if __name__ == '__main__':
     except:
         raise Exception('You need cv2 in order to run the demo. However, you can still use the library without it.')
 
-    at_detector = Detector(searchpath=['apriltags3'],
+    at_detector = Detector(searchpath=['apriltags'],
                            families='tag36h11',
                            nthreads=1,
                            quad_decimate=2.0,
@@ -451,7 +451,7 @@ if __name__ == '__main__':
                            refine_edges=1,
                            decode_sharpening=0.25)
 
-    img = cv2.imread('test_image.png', cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread('test/test_image.png', cv2.IMREAD_GRAYSCALE)
     cameraMatrix = numpy.array([336.7755634193813, 0.0, 333.3575643300718, 0.0, 336.02729840829176, 212.77376312080065, 0.0, 0.0, 1.0]).reshape((3,3))
     camera_params = ( cameraMatrix[0,0], cameraMatrix[1,1], cameraMatrix[0,2], cameraMatrix[1,2] )
 
