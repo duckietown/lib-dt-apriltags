@@ -1,0 +1,12 @@
+# Test images by Xiaohan-Wang (https://github.com/Xiaohan-Wang/apriltag2_detection)
+
+K: [329.8729619143081, 0.0, 528.0, 0.0, 332.94611303946357, 396.0, 0.0, 0.0, 1.0]
+tag_size: 0.065
+height: 792
+width: 1056
+posx: 0.30
+posy: 0.00
+posz: 0.05
+rotx: 0.0
+roty: 0.0
+rotz: Variable
