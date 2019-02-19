@@ -301,6 +301,10 @@ library used by ctypes.
 
     def __del__(self):
         if self.tag_detector_ptr is not None:
+            # destroy the detector
+            self.libc.apriltag_detector_destroy.restype = None
+            self.libc.apriltag_detector_destroy(self.tag_detector_ptr)
+            
             # destroy the tag families
             for family, tf in self.tag_families.items():
                 if 'tag16h5' == family:
@@ -327,10 +331,6 @@ library used by ctypes.
                 elif 'tagStandard52h13' == family:
                     self.libc.tagStandard52h13_destroy.restype = None
                     self.libc.tagStandard52h13_destroy(tf)
-
-            # destroy the detector
-            self.libc.apriltag_detector_destroy.restype = None
-            self.libc.apriltag_detector_destroy(self.tag_detector_ptr)
 
     def detect(self, img, estimate_tag_pose=False, camera_params=None, tag_size=None):
 
