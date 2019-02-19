@@ -38,7 +38,7 @@ Detection of tags in images is done by running the `detect` method of the detect
 tags = at_detector.detect(img, estimate_tag_pose=False, camera_params=None, tag_size=None)
 ```
 
-If you also want to extract the tag pose, `estimate_tag_pose` should be set to `True` and `camera_params` (`[fx, fy, cx, cy]`) and `tag_size` (in meters) should be supplied. The `detect` method returns a list of `Detection` objects each having the following attributes (not that the ones with an asterisks are computed only if `estimate_tag_pose=True`):
+If you also want to extract the tag pose, `estimate_tag_pose` should be set to `True` and `camera_params` (`[fx, fy, cx, cy]`) and `tag_size` (in meters) should be supplied. The `detect` method returns a list of `Detection` objects each having the following attributes (note that the ones with an asterisks are computed only if `estimate_tag_pose=True`):
 
 | **Attribute**   	| **Explanation**                                                                                                                                                                                                                                                                                                                                                                                            	|
 |-----------------	|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
