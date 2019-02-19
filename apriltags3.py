@@ -177,13 +177,9 @@ class Detection():
 
 class Detector(object):
 
-    '''Pythonic wrapper for apriltag_detector. Initialize by passing in
-the output of an argparse.ArgumentParser on which you have called
-add_arguments; or an instance of the DetectorOptions class.  You can
-also optionally pass in a list of paths to search for the C dynamic
-library used by ctypes.
+    '''Pythonic wrapper for apriltag_detector.
 
-    families: Tag families, separate them with a space, default: tag36h11
+    families: Tag families, separated with a space, default: tag36h11
 
     nthreads: Number of threads, default: 1
 
@@ -195,8 +191,9 @@ library used by ctypes.
 
     decode_sharpening: How much sharpening should be done to decoded images? This can help decode small tags but may or may not help in odd lighting conditions or low light conditions, default = 0.25
 
-    searchpath: Where to look for the Apriltag 3 library, can be a list, default: []
+    searchpath: Where to look for the Apriltag 3 library, must be a list, default: ['apriltags']
 
+    debug: If 1, will save debug images. Runs very slow, default: 0
     '''
 
     def __init__(self,
@@ -207,7 +204,7 @@ library used by ctypes.
                 refine_edges=1,
                 decode_sharpening=0.25,
                 debug=0,
-                searchpath=[]):
+                searchpath=['apriltags']):
 
         # Parse the parameters
         self.params = dict()
@@ -301,10 +298,6 @@ library used by ctypes.
 
     def __del__(self):
         if self.tag_detector_ptr is not None:
-            # destroy the detector
-            self.libc.apriltag_detector_destroy.restype = None
-            self.libc.apriltag_detector_destroy(self.tag_detector_ptr)
-            
             # destroy the tag families
             for family, tf in self.tag_families.items():
                 if 'tag16h5' == family:
@@ -331,6 +324,10 @@ library used by ctypes.
                 elif 'tagStandard52h13' == family:
                     self.libc.tagStandard52h13_destroy.restype = None
                     self.libc.tagStandard52h13_destroy(tf)
+
+            # destroy the detector
+            self.libc.apriltag_detector_destroy.restype = None
+            self.libc.apriltag_detector_destroy(self.tag_detector_ptr)
 
     def detect(self, img, estimate_tag_pose=False, camera_params=None, tag_size=None):
 
