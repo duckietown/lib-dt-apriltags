@@ -206,6 +206,7 @@ library used by ctypes.
                 quad_sigma=0.0,
                 refine_edges=1,
                 decode_sharpening=0.25,
+                debug=0,
                 searchpath=[]):
 
         # Parse the parameters
@@ -216,6 +217,7 @@ library used by ctypes.
         self.params['quad_sigma'] = quad_sigma
         self.params['refine_edges'] = refine_edges
         self.params['decode_sharpening'] = decode_sharpening
+        self.params['debug'] = debug
 
         # detect OS to get extension for DLL
         uname0 = os.uname()[0]
@@ -293,6 +295,7 @@ library used by ctypes.
         self.tag_detector_ptr.contents.quad_sigma = float(self.params['quad_sigma'])
         self.tag_detector_ptr.contents.refine_edges = int(self.params['refine_edges'])
         self.tag_detector_ptr.contents.decode_sharpening = int(self.params['decode_sharpening'])
+        self.tag_detector_ptr.contents.debug = int(self.params['debug'])
 
 
 
@@ -433,22 +436,34 @@ if __name__ == '__main__':
         import cv2
     except:
         raise Exception('You need cv2 in order to run the demo. However, you can still use the library without it.')
+    try:
+        import yaml
+    except:
+        raise Exception('You need yaml in order to run the tests. However, you can still use the library without it.')
 
     at_detector = Detector(searchpath=['apriltags'],
                            families='tag36h11',
                            nthreads=1,
-                           quad_decimate=2.0,
+                           quad_decimate=1.0,
                            quad_sigma=0.0,
                            refine_edges=1,
-                           decode_sharpening=0.25)
+                           decode_sharpening=0.25,
+                           debug=1)
 
-    img = cv2.imread(test_images_path+'/test_image.png', cv2.IMREAD_GRAYSCALE)
-    cameraMatrix = numpy.array([336.7755634193813, 0.0, 333.3575643300718, 0.0, 336.02729840829176, 212.77376312080065, 0.0, 0.0, 1.0]).reshape((3,3))
+    with open(test_images_path + '/test_info.yaml', 'r') as stream:
+        parameters = yaml.load(stream)
+
+    #### TEST WITH THE SAMPLE IMAGE ####
+
+    print("\n\nTESTING WITH A SAMPLE IMAGE")
+
+    img = cv2.imread(test_images_path+'/'+parameters['sample_test']['file'], cv2.IMREAD_GRAYSCALE)
+    cameraMatrix = numpy.array(parameters['sample_test']['K']).reshape((3,3))
     camera_params = ( cameraMatrix[0,0], cameraMatrix[1,1], cameraMatrix[0,2], cameraMatrix[1,2] )
 
     cv2.imshow('Original image',img)
 
-    tags = at_detector.detect(img, True, camera_params, 0.065)
+    tags = at_detector.detect(img, True, camera_params, parameters['sample_test']['tag_size'])
     print(tags)
 
     color_img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
@@ -471,15 +486,8 @@ if __name__ == '__main__':
 
 
     #### TEST WITH THE ROTATION IMAGES ####
-    try:
-        import yaml
-    except:
-        raise Exception('You need yaml in order to run the tests. However, you can still use the library without it.')
 
     import time
-
-    with open(test_images_path + '/test_info.yaml', 'r') as stream:
-        parameters = yaml.load(stream)
 
     print("\n\nTESTING WITH ROTATION IMAGES")
 
@@ -512,12 +520,13 @@ if __name__ == '__main__':
 
     print("AVG time per detection: ", time_sum/time_num)
 
+    #### TEST WITH MULTIPLE TAGS IMAGES ####
+
     print("\n\nTESTING WITH MULTIPLE TAGS IMAGES")
 
     time_num = 0
     time_sum = 0
 
-    test_images_path = 'test'
     image_names = parameters['multiple_tags_test']['files']
 
     for image_name in image_names:
@@ -538,5 +547,24 @@ if __name__ == '__main__':
 
         tag_ids = [tag.tag_id for tag in tags]
         print(len(tags), " tags found: ", tag_ids)
+
+
+        color_img = cv2.cvtColor(img, cv2.COLOR_GRAY2RGB)
+
+        for tag in tags:
+            for idx in range(len(tag.corners)):
+                cv2.line(color_img, tuple(tag.corners[idx-1, :].astype(int)), tuple(tag.corners[idx, :].astype(int)), (0, 255, 0))
+
+            cv2.putText(color_img, str(tag.tag_id),
+                        org=(tag.corners[0, 0].astype(int)+10,tag.corners[0, 1].astype(int)+10),
+                        fontFace=cv2.FONT_HERSHEY_SIMPLEX,
+                        fontScale=0.8,
+                        color=(0, 0, 255))
+
+        cv2.imshow('Detected tags for ' + image_name    , color_img)
+
+        k = cv2.waitKey(0)
+        if k == 27:         # wait for ESC key to exit
+            cv2.destroyAllWindows()
 
     print("AVG time per detection: ", time_sum/time_num)

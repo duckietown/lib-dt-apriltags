@@ -1,5 +1,12 @@
-# Test images by Xiaohan-Wang (https://github.com/Xiaohan-Wang/apriltag2_detection)
 
+sample_test:
+  file: test_image.png
+  K: [336.7755634193813, 0.0, 333.3575643300718, 0.0, 336.02729840829176, 212.77376312080065, 0.0, 0.0, 1.0]
+  tag_size: 0.065
+  height: 480
+  width: 640
+
+# Rotation test images by Xiaohan-Wang (https://github.com/Xiaohan-Wang/apriltag2_detection)
 rotation_test:
   files: [test_image_rotation_0.png, test_image_rotation_10.png, test_image_rotation_20.png, test_image_rotation_30.png, test_image_rotation_40.png,
           test_image_rotation_50.png, test_image_rotation_60.png, test_image_rotation_70.png, test_image_rotation_-10.png, test_image_rotation_-20.png,
