@@ -337,25 +337,19 @@ image of type numpy.uint8.'''
         assert len(img.shape) == 2
         assert img.dtype == numpy.uint8
 
-        import time
-        s = time.time()
         c_img = self._convert_image(img)
-        print("Conver image: ", time.time()-s)
 
         return_info = []
 
         #detect apriltags in the image
-        s = time.time()
         self.libc.apriltag_detector_detect.restype = ctypes.POINTER(_ZArray)
         detections = self.libc.apriltag_detector_detect(self.tag_detector_ptr, c_img)
 
         apriltag = ctypes.POINTER(_ApriltagDetection)()
-        print("Detection: ", time.time()-s)
 
 
         for i in range(0, detections.contents.size):
 
-            s = time.time()
             #extract the data for each apriltag that was identified
             zarray_get(detections, i, ctypes.byref(apriltag))
 
@@ -375,10 +369,7 @@ image of type numpy.uint8.'''
             detection.center = center
             detection.corners = corners
 
-            print("Tag extraction: ", time.time()-s)
-
             if estimate_tag_pose:
-                s = time.time()
                 if camera_params==None:
                     raise Exception('camera_params must be provided to detect if estimate_tag_pose is set to True')
                 if tag_size==None:
@@ -401,8 +392,6 @@ image of type numpy.uint8.'''
                 detection.pose_R = _matd_get_array(pose.R).copy()
                 detection.pose_t = _matd_get_array(pose.t).copy()
                 detection.pose_err = err
-
-                print("Pose estimation: ", time.time()-s)
 
 
             #Append this dict to the tag data array
@@ -438,6 +427,8 @@ image of type numpy.uint8.'''
 
 if __name__ == '__main__':
 
+    test_images_path = 'test'
+
     try:
         import cv2
     except:
@@ -451,7 +442,7 @@ if __name__ == '__main__':
                            refine_edges=1,
                            decode_sharpening=0.25)
 
-    img = cv2.imread('test/test_image.png', cv2.IMREAD_GRAYSCALE)
+    img = cv2.imread(test_images_path+'/test_image.png', cv2.IMREAD_GRAYSCALE)
     cameraMatrix = numpy.array([336.7755634193813, 0.0, 333.3575643300718, 0.0, 336.02729840829176, 212.77376312080065, 0.0, 0.0, 1.0]).reshape((3,3))
     camera_params = ( cameraMatrix[0,0], cameraMatrix[1,1], cameraMatrix[0,2], cameraMatrix[1,2] )
 
@@ -479,41 +470,73 @@ if __name__ == '__main__':
         cv2.destroyAllWindows()
 
 
-    #### TEST WITH THE GROUND TRUTH IMAGES ####
-
+    #### TEST WITH THE ROTATION IMAGES ####
     try:
         import yaml
     except:
         raise Exception('You need yaml in order to run the tests. However, you can still use the library without it.')
 
     import time
+
+    with open(test_images_path + '/test_info.yaml', 'r') as stream:
+        parameters = yaml.load(stream)
+
+    print("\n\nTESTING WITH ROTATION IMAGES")
+
     time_num = 0
     time_sum = 0
 
     test_images_path = 'test'
-    image_names = [filename for filename in os.listdir(test_images_path) if filename.endswith('.png')]
+    image_names = parameters['rotation_test']['files']
 
     for image_name in image_names:
+        print("Testing image ", image_name)
         ab_path = test_images_path + '/' + image_name
         if(not os.path.isfile(ab_path)):
             continue
-        groundtruth = float(image_name.split('.')[0])  # name of test image should be set to its groundtruth
+        groundtruth = float(image_name.split('_')[-1].split('.')[0])  # name of test image should be set to its groundtruth
 
-        with open(test_images_path + '/test_info.yaml', 'r') as stream:
-            parameters = yaml.load(stream)
-
-        parameters['rotz'] = groundtruth
-        cameraMatrix = numpy.array(parameters['K']).reshape((3,3))
+        parameters['rotation_test']['rotz'] = groundtruth
+        cameraMatrix = numpy.array(parameters['rotation_test']['K']).reshape((3,3))
         camera_params = ( cameraMatrix[0,0], cameraMatrix[1,1], cameraMatrix[0,2], cameraMatrix[1,2] )
 
         img = cv2.imread(ab_path, cv2.IMREAD_GRAYSCALE)
 
         start = time.time()
-        tags = at_detector.detect(img, True, camera_params, parameters['tag_size'])
+        tags = at_detector.detect(img, True, camera_params, parameters['rotation_test']['tag_size'])
         time_sum+=time.time()-start
         time_num+=1
 
-        print(tags[0].pose_t, parameters['posx'], parameters['posy'], parameters['posz'])
-        print(tags[0].pose_R, parameters['rotx'], parameters['roty'], parameters['rotz'])
+        print(tags[0].pose_t, parameters['rotation_test']['posx'], parameters['rotation_test']['posy'], parameters['rotation_test']['posz'])
+        print(tags[0].pose_R, parameters['rotation_test']['rotx'], parameters['rotation_test']['roty'], parameters['rotation_test']['rotz'])
+
+    print("AVG time per detection: ", time_sum/time_num)
+
+    print("\n\nTESTING WITH MULTIPLE TAGS IMAGES")
+
+    time_num = 0
+    time_sum = 0
+
+    test_images_path = 'test'
+    image_names = parameters['multiple_tags_test']['files']
+
+    for image_name in image_names:
+        print("Testing image ", image_name)
+        ab_path = test_images_path + '/' + image_name
+        if(not os.path.isfile(ab_path)):
+            continue
+
+        cameraMatrix = numpy.array(parameters['multiple_tags_test']['K']).reshape((3,3))
+        camera_params = ( cameraMatrix[0,0], cameraMatrix[1,1], cameraMatrix[0,2], cameraMatrix[1,2] )
+
+        img = cv2.imread(ab_path, cv2.IMREAD_GRAYSCALE)
+
+        start = time.time()
+        tags = at_detector.detect(img, True, camera_params, parameters['multiple_tags_test']['tag_size'])
+        time_sum+=time.time()-start
+        time_num+=1
+
+        tag_ids = [tag.tag_id for tag in tags]
+        print(len(tags), " tags found: ", tag_ids)
 
     print("AVG time per detection: ", time_sum/time_num)

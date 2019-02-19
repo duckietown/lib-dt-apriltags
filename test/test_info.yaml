@@ -1,12 +1,24 @@
 # Test images by Xiaohan-Wang (https://github.com/Xiaohan-Wang/apriltag2_detection)
 
-K: [329.8729619143081, 0.0, 528.0, 0.0, 332.94611303946357, 396.0, 0.0, 0.0, 1.0]
-tag_size: 0.065
-height: 792
-width: 1056
-posx: 0.30
-posy: 0.00
-posz: 0.05
-rotx: 0.0
-roty: 0.0
-rotz: Variable
+rotation_test:
+  files: [test_image_rotation_0.png, test_image_rotation_10.png, test_image_rotation_20.png, test_image_rotation_30.png, test_image_rotation_40.png,
+          test_image_rotation_50.png, test_image_rotation_60.png, test_image_rotation_70.png, test_image_rotation_-10.png, test_image_rotation_-20.png,
+          test_image_rotation_-30.png, test_image_rotation_-40.png, test_image_rotation_-50.png, test_image_rotation_-60.png, test_image_rotation_-70.png]
+  K: [329.8729619143081, 0.0, 528.0, 0.0, 332.94611303946357, 396.0, 0.0, 0.0, 1.0]
+  tag_size: 0.065
+  height: 792
+  width: 1056
+  posx: 0.30
+  posy: 0.00
+  posz: 0.05
+  rotx: 0.0
+  roty: 0.0
+  rotz: Variable
+
+multiple_tags_test:
+  files: [test_image_multiple_01.png, test_image_multiple_02.png, test_image_multiple_03.png, test_image_multiple_04.png, test_image_multiple_05.png,
+          test_image_multiple_06.png, test_image_multiple_07.png, test_image_multiple_08.png, test_image_multiple_09.png, test_image_multiple_10.png]
+  K: [338.563277422543, 0.0, 336.45495347495824, 0.0, 338.939280638548, 230.486982216255, 0.0, 0.0, 1.0]
+  tag_size: 0.065
+  height: 480
+  width: 640
