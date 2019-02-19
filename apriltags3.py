@@ -448,7 +448,7 @@ if __name__ == '__main__':
                            quad_sigma=0.0,
                            refine_edges=1,
                            decode_sharpening=0.25,
-                           debug=1)
+                           debug=0)
 
     with open(test_images_path + '/test_info.yaml', 'r') as stream:
         parameters = yaml.load(stream)
