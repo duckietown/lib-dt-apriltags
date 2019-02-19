@@ -6,8 +6,7 @@ These are Python bindings for the [Apriltags3](https://github.com/AprilRobotics/
 ## Usage
 Some examples of usage can be seen in the `apriltags3.py` file.
 
-Detector object: Wrapper around the Apriltags functionality.
-You can initialize it as following:
+The `Detector` class is a wrapper around the Apriltags functionality. You can initialize it as following:
 
 ```
 at_detector = Detector(searchpath=['apriltags'],
@@ -39,7 +38,7 @@ Detection of tags in images is done by running the `detect` method of the detect
 tags = at_detector.detect(img, estimate_tag_pose=False, camera_params=None, tag_size=None)
 ```
 
-If you also want to extract the tag pose, `estimate_tag_pose` should be set to `True` and `camera_params` (`[fx, fy, cx, cy]`) and `tag_size` (in meters) should be supplied. The `detect` returns a list of `Detection` objects each having the following attributes (not that the ones with an asterisks are computed only if `estimate_tag_pose=True`):
+If you also want to extract the tag pose, `estimate_tag_pose` should be set to `True` and `camera_params` (`[fx, fy, cx, cy]`) and `tag_size` (in meters) should be supplied. The `detect` method returns a list of `Detection` objects each having the following attributes (not that the ones with an asterisks are computed only if `estimate_tag_pose=True`):
 
 | **Attribute**   	| **Explanation**                                                                                                                                                                                                                                                                                                                                                                                            	|
 |-----------------	|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------	|
