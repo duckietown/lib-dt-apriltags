@@ -355,7 +355,7 @@ image of type numpy.uint8.'''
 
             tag = apriltag.contents
 
-            homography = _matd_get_array(tag.H).copy()
+            homography = None #_matd_get_array(tag.H).copy() # Don't ask questions, move on with your life
             center = numpy.ctypeslib.as_array(tag.c, shape=(2,)).copy()
             corners = numpy.ctypeslib.as_array(tag.p, shape=(4, 2)).copy()
 
@@ -429,10 +429,17 @@ if __name__ == '__main__':
 
     test_images_path = 'test'
 
+    visualization = True
     try:
         import cv2
     except:
         raise Exception('You need cv2 in order to run the demo. However, you can still use the library without it.')
+
+    try:
+        import cv2.imshow
+    except:
+        visualization = False
+
     try:
         import yaml
     except:
@@ -458,7 +465,8 @@ if __name__ == '__main__':
     cameraMatrix = numpy.array(parameters['sample_test']['K']).reshape((3,3))
     camera_params = ( cameraMatrix[0,0], cameraMatrix[1,1], cameraMatrix[0,2], cameraMatrix[1,2] )
 
-    cv2.imshow('Original image',img)
+    if visualization:
+        cv2.imshow('Original image',img)
 
     tags = at_detector.detect(img, True, camera_params, parameters['sample_test']['tag_size'])
     print(tags)
@@ -475,11 +483,12 @@ if __name__ == '__main__':
                     fontScale=0.8,
                     color=(0, 0, 255))
 
-    cv2.imshow('Detected tags', color_img)
+    if visualization:
+        cv2.imshow('Detected tags', color_img)
 
-    k = cv2.waitKey(0)
-    if k == 27:         # wait for ESC key to exit
-        cv2.destroyAllWindows()
+        k = cv2.waitKey(0)
+        if k == 27:         # wait for ESC key to exit
+            cv2.destroyAllWindows()
 
 
     #### TEST WITH THE ROTATION IMAGES ####
@@ -558,10 +567,11 @@ if __name__ == '__main__':
                         fontScale=0.8,
                         color=(0, 0, 255))
 
-        cv2.imshow('Detected tags for ' + image_name    , color_img)
+        if visualization:
+            cv2.imshow('Detected tags for ' + image_name    , color_img)
 
-        k = cv2.waitKey(0)
-        if k == 27:         # wait for ESC key to exit
-            cv2.destroyAllWindows()
+            k = cv2.waitKey(0)
+            if k == 27:         # wait for ESC key to exit
+                cv2.destroyAllWindows()
 
     print("AVG time per detection: ", time_sum/time_num)
