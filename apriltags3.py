@@ -355,7 +355,7 @@ image of type numpy.uint8.'''
 
             tag = apriltag.contents
 
-            homography = None #_matd_get_array(tag.H).copy() # Don't ask questions, move on with your life
+            homography = numpy.zeros((3,3)) #_matd_get_array(tag.H).copy() # Don't ask questions, move on with your life
             center = numpy.ctypeslib.as_array(tag.c, shape=(2,)).copy()
             corners = numpy.ctypeslib.as_array(tag.p, shape=(4, 2)).copy()
 
