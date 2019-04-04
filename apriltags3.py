@@ -69,7 +69,7 @@ class _ApriltagDetection(ctypes.Structure):
         ('family', ctypes.POINTER(_ApriltagFamily)),
         ('id', ctypes.c_int),
         ('hamming', ctypes.c_int),
-        ('goodness', ctypes.c_float),
+        # ('goodness', ctypes.c_float),
         ('decision_margin', ctypes.c_float),
         ('H', ctypes.POINTER(_Matd)),
         ('c', ctypes.c_double*2),
@@ -146,7 +146,7 @@ class Detection():
         self.tag_family = None
         self.tag_id = None
         self.hamming = None
-        self.goodness = None
+        # self.goodness = None
         self.decision_margin = None
         self.homography = None
         self.center = None
@@ -160,7 +160,7 @@ class Detection():
         '\ntag_family = ' + str(self.tag_family)+
         '\ntag_id = ' + str(self.tag_id)+
         '\nhamming = ' + str(self.hamming)+
-        '\ngoodness = ' + str(self.goodness)+
+        # '\ngoodness = ' + str(self.goodness)+
         '\ndecision_margin = ' + str(self.decision_margin)+
         '\nhomography = ' + str(self.homography)+
         '\ncenter = ' + str(self.center)+
@@ -355,7 +355,7 @@ image of type numpy.uint8.'''
 
             tag = apriltag.contents
 
-            homography = numpy.zeros((3,3)) #_matd_get_array(tag.H).copy() # Don't ask questions, move on with your life
+            homography = _matd_get_array(tag.H).copy() # numpy.zeros((3,3))  # Don't ask questions, move on with your life
             center = numpy.ctypeslib.as_array(tag.c, shape=(2,)).copy()
             corners = numpy.ctypeslib.as_array(tag.p, shape=(4, 2)).copy()
 
@@ -363,7 +363,7 @@ image of type numpy.uint8.'''
             detection.tag_family = ctypes.string_at(tag.family.contents.name)
             detection.tag_id = tag.id
             detection.hamming = tag.hamming
-            detection.goodness = tag.goodness
+            # detection.goodness = tag.goodness
             detection.decision_margin = tag.decision_margin
             detection.homography = homography
             detection.center = center
