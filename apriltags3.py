@@ -379,7 +379,6 @@ image of type numpy.uint8.'''
                                               fy=camera_fy,
                                               cx=camera_cx,
                                               cy=camera_cy)
-
                 pose = _ApriltagPose()
 
                 self.libc.estimate_tag_pose.restype = ctypes.c_double
@@ -441,7 +440,7 @@ if __name__ == '__main__':
     except:
         raise Exception('You need yaml in order to run the tests. However, you can still use the library without it.')
 
-    at_detector = Detector(searchpath=['apriltags'],
+    at_detector = Detector(searchpath=['apriltags/lib'],
                            families='tag36h11',
                            nthreads=1,
                            quad_decimate=1.0,
@@ -514,6 +513,7 @@ if __name__ == '__main__':
 
         start = time.time()
         tags = at_detector.detect(img, True, camera_params, parameters['rotation_test']['tag_size'])
+
         time_sum+=time.time()-start
         time_num+=1
 
