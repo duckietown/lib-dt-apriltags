@@ -441,7 +441,7 @@ if __name__ == '__main__':
     except:
         raise Exception('You need yaml in order to run the tests. However, you can still use the library without it.')
 
-    at_detector = Detector(searchpath=['apriltags/lib', "apriltags/lib64"],
+    at_detector = Detector(searchpath=['apriltags/lib', 'apriltags/lib64'],
                            families='tag36h11',
                            nthreads=1,
                            quad_decimate=1.0,
