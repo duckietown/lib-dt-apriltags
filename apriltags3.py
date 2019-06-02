@@ -432,8 +432,10 @@ if __name__ == '__main__':
         raise Exception('You need cv2 in order to run the demo. However, you can still use the library without it.')
 
     try:
-        import cv2.imshow
+        from cv2 import imshow
     except:
+        print("The function imshow was not implemented in this installation. Rebuild OpenCV from source to use it")
+        print("VIsualization will be disabled.")
         visualization = False
 
     try:
