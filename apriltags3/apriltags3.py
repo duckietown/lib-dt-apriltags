@@ -201,7 +201,7 @@ class Detector(object):
                 refine_edges=1,
                 decode_sharpening=0.25,
                 debug=0,
-                searchpath=['apriltags']):
+                searchpath=['apriltags', '.']):
 
         # Parse the parameters
         self.params = dict()
@@ -227,7 +227,7 @@ class Detector(object):
         self.tag_detector_ptr = None
 
         for path in searchpath:
-            relpath = os.path.join(path, filename)
+            relpath = os.path.join(os.path.dirname(__file__), path, filename)
             if os.path.exists(relpath):
                 self.libc = ctypes.CDLL(relpath)
                 break
@@ -236,7 +236,7 @@ class Detector(object):
         # this should search whatever paths dlopen is supposed to
         # search.
         if self.libc is None:
-            self.libc = ctypes.CDLL(filename)
+            self.libc = ctypes.CDLL(os.path.join(os.path.dirname(__file__), filename))
 
         if self.libc is None:
             raise RuntimeError('could not find DLL named ' + filename)
@@ -443,8 +443,7 @@ if __name__ == '__main__':
     except:
         raise Exception('You need yaml in order to run the tests. However, you can still use the library without it.')
 
-    at_detector = Detector(searchpath=['apriltags/lib', 'apriltags/lib64'],
-                           families='tag36h11',
+    at_detector = Detector(families='tag36h11',
                            nthreads=1,
                            quad_decimate=1.0,
                            quad_sigma=0.0,
