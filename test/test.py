@@ -4,7 +4,7 @@ import os
 
 test_images_path = 'test_files'
 
-visualization = True
+visualization = False
 try:
     import cv2
 except:
