@@ -6,7 +6,7 @@ sample_test:
   height: 480
   width: 640
 
-# Rotation test images by Xiaohan-Wang (https://github.com/Xiaohan-Wang/apriltag2_detection)
+# Rotation test_files images by Xiaohan-Wang (https://github.com/Xiaohan-Wang/apriltag2_detection)
 rotation_test:
   files: [test_image_rotation_0.png, test_image_rotation_10.png, test_image_rotation_20.png, test_image_rotation_30.png, test_image_rotation_40.png,
           test_image_rotation_50.png, test_image_rotation_60.png, test_image_rotation_70.png, test_image_rotation_-10.png, test_image_rotation_-20.png,

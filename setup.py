@@ -1,104 +1,82 @@
-from setuptools import setup, Extension
-from setuptools.command.build_ext import build_ext
-import subprocess
 import os
-import sys
-import platform
+import pathlib
+from xml.dom import minidom
 
-version='1.0.0'
+from setuptools import setup, Extension
+from setuptools.command.build_ext import build_ext as build_ext_orig
 
-# Command line flags forwarded to CMake (for debug purpose)
-cmake_cmd_args = []
-for f in sys.argv:
-    if f.startswith('-D'):
-        cmake_cmd_args.append(f)
+def mkdir(path):
+    try:
+        path.mkdir(parents=True, exist_ok=True)
+    except TypeError:
+        path.mkdir(parents=True)
 
-for f in cmake_cmd_args:
-    sys.argv.remove(f)
-
-
-def _get_env_variable(name, default='OFF'):
-    if name not in os.environ.keys():
-        return default
-    return os.environ[name]
 
 class CMakeExtension(Extension):
-    def __init__(self, name, cmake_lists_dir='.', **kwa):
-        Extension.__init__(self, name, sources=[], **kwa)
-        self.cmake_lists_dir = os.path.abspath(cmake_lists_dir)
 
-class CMakeBuild(build_ext):
-    def build_extensions(self):
-        # Ensure that CMake is present and working
-        try:
-            out = subprocess.check_output(['cmake', '--version'])
-        except OSError:
-            raise RuntimeError('Cannot find CMake executable')
+    def __init__(self, name, sourcedir=[]):
+        # don't invoke the original build_ext for this special extension
+        Extension.__init__(self, name, sources=[])
+        self.sourcedir = os.path.abspath(sourcedir)
 
+
+class build_ext(build_ext_orig):
+
+    def run(self):
         for ext in self.extensions:
+            self.build_cmake(ext)
+        build_ext_orig.run(self)
 
-            extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))+'/apriltags3'
-            cfg = 'Debug' if _get_env_variable('DISPTOOLS_DEBUG') == 'ON' else 'Release'
+    def build_cmake(self, ext):
+        cwd = pathlib.Path().absolute()
 
-            cmake_args = [
-                '-DCMAKE_BUILD_TYPE=%s' % cfg,
-                # Ask CMake to place the resulting library in the directory
-                # containing the extension
-                '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir),
-                # Other intermediate static libraries are placed in a
-                # temporary build directory instead
-                '-DCMAKE_ARCHIVE_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), self.build_temp),
-                # Hint CMake to use the same Python executable that
-                # is launching the build, prevents possible mismatching if
-                # multiple versions of Python are installed
-                '-DPYTHON_EXECUTABLE={}'.format(sys.executable),
-                # Add other project-specific CMake arguments if needed
-                # ...
-            ]
+        # these dirs will be created in build_py, so if you don't have
+        # any python sources to bundle, the dirs will be missing
+        build_lib = pathlib.Path(self.build_lib)
+        print('build_lib', build_lib)
+        build_temp = pathlib.Path(self.build_temp)
+        print('build_temp', build_temp)
+        mkdir(build_temp)
+        extdir = pathlib.Path(self.get_ext_fullpath(ext.name))
+        print('extdir', extdir)
+        mkdir(extdir)
+        #
+        # # example of cmake args
+        # config = 'Debug' if self.debug else 'Release'
+        # cmake_args = [
+        #     '-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + str(extdir.parent.absolute()),
+        #     '-DCMAKE_BUILD_TYPE=' + config
+        # ]
+        #
+        # # example of build args
+        # build_args = [
+        #     '--config', config,
+        #     '--', '-j4'
+        # ]
 
-            # We can handle some platform-specific settings at our discretion
-            if platform.system() == 'Windows':
-                plat = ('x64' if platform.architecture()[0] == '64bit' else 'Win32')
-                cmake_args += [
-                    # These options are likely to be needed under Windows
-                    '-DCMAKE_WINDOWS_EXPORT_ALL_SYMBOLS=TRUE',
-                    '-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir),
-                ]
-                # Assuming that Visual Studio and MinGW are supported compilers
-                if self.compiler.compiler_type == 'msvc':
-                    cmake_args += [
-                        '-DCMAKE_GENERATOR_PLATFORM=%s' % plat,
-                    ]
-                else:
-                    cmake_args += [
-                        '-G', 'MinGW Makefiles',
-                    ]
+        cmake_args=[]
+        build_args=[]
 
-            cmake_args += cmake_cmd_args
+        os.chdir(str(build_temp))
+        self.spawn(['cmake', str(cwd)+'/apriltags'] + cmake_args)
+        if not self.dry_run:
+            self.spawn(['cmake', '--build', '.'] + build_args)
+            self.spawn(['cp', 'lib/libapriltag.so', str(cwd/build_lib)+'/apriltags3/libapriltag.so'])
+        os.chdir(str(cwd))
 
-            if not os.path.exists(self.build_temp):
-                os.makedirs(self.build_temp)
+version = minidom.parse('apriltags/package.xml').getElementsByTagName("version")[0].childNodes[0].data
 
-            # Config
-            subprocess.check_call(['cmake', ext.cmake_lists_dir] + cmake_args,
-                                  cwd=self.build_temp)
-
-            # Build
-            subprocess.check_call(['cmake', '--build', '.', '--config', cfg],
-                                  cwd=self.build_temp)
-
-
-setup(name='apriltags3',
-      version=version,
-      description='Python bindings for the AprilTags 3 Library',
-      url='https://github.com/duckietown/apriltags3-py',
-      author='Aleksandar Petrov',
-      author_email='alpetrov@ethz.ch',
-      license='MIT',
-      packages=['apriltags3'],
-      zip_safe=False,
-      install_requires=['numpy'],
-      ext_modules=[CMakeExtension('apriltags', cmake_lists_dir='./apriltags')],
-      cmdclass={'build_ext': CMakeBuild},
-      long_description=open('README.md').read(),
-    )
+setup(
+    name='dt-apriltags',
+    version=version,
+    author='Aleksandar Petrov',
+    author_email='alpetrov@ethz.ch',
+    url="https://github.com/duckietown/apriltags3-py",
+    install_requires=['numpy','pathlib'],
+    # package_data={'': ['apriltags/*']},
+    packages=['apriltags3'],
+    ext_modules=[CMakeExtension('apriltags', sourcedir='apriltags')],
+    cmdclass={
+        'build_ext': build_ext,
+    }
+)
