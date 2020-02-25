@@ -71,7 +71,7 @@ setup(
     version=version,
     author='Aleksandar Petrov',
     author_email='alpetrov@ethz.ch',
-    url="https://github.com/duckietown/apriltags3-py",
+    url="https://github.com/duckietown/dt-apriltags",
     install_requires=['numpy','pathlib'],
     packages=['dt-apriltags'],
     long_description=open('README.md').read(),
