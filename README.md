@@ -1,6 +1,6 @@
-# apriltags3-py: Python bindings for the apriltags3 library
+# dt-apriltags: Python bindings for the Apriltags library
 
-These are Python bindings for the [Apriltags3](https://github.com/AprilRobotics/apriltags) library developed by [AprilRobotics](https://april.eecs.umich.edu/). Inspired by the [Apriltags2 bindings](https://github.com/swatbotics/apriltag) by [Matt Zucker](https://github.com/mzucker).
+These are Python bindings for the [Apriltags](https://github.com/AprilRobotics/apriltags) library developed by [AprilRobotics](https://april.eecs.umich.edu/). Inspired by the [Apriltags2 bindings](https://github.com/swatbotics/apriltag) by [Matt Zucker](https://github.com/mzucker).
 
 The original library is published with a [BSD 2-Clause license](https://github.com/AprilRobotics/apriltag/blob/master/LICENSE.md). 
 
