@@ -75,6 +75,7 @@ setup(
     install_requires=['numpy','pathlib'],
     packages=['dt-apriltags'],
     long_description=open('README.md').read(),
+    long_description_content_type="text/markdown",
     ext_modules=[CMakeExtension('apriltags', sourcedir='dt-apriltags')],
     cmdclass={
         'build_ext': build_ext,
