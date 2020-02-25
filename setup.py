@@ -73,7 +73,6 @@ setup(
     author_email='alpetrov@ethz.ch',
     url="https://github.com/duckietown/apriltags3-py",
     install_requires=['numpy','pathlib'],
-    # package_data={'': ['apriltags/*']},
     packages=['dt-apriltags'],
     long_description=open('README.md').read(),
     ext_modules=[CMakeExtension('apriltags', sourcedir='dt-apriltags')],
