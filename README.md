@@ -2,7 +2,17 @@
 
 These are Python bindings for the [Apriltags3](https://github.com/AprilRobotics/apriltags) library developed by [AprilRobotics](https://april.eecs.umich.edu/). Inspired by the [Apriltags2 bindings](https://github.com/swatbotics/apriltag) by [Matt Zucker](https://github.com/mzucker).
 
-## How to get started:
+The original library is published with a [BSD 2-Clause license](https://github.com/AprilRobotics/apriltag/blob/master/LICENSE.md). 
+
+## Installation
+
+### The easy way
+You can install using `pip`:
+```
+pip install dt-apriltags
+```
+
+## Build it yourself
 
 Clone this repository and navigate in it. Then initialize the Apriltags submodule:
 
@@ -20,7 +30,7 @@ $ make
 If building Apriltags was successful, you should be able to run the demo.
 
 ## Usage
-Some examples of usage can be seen in the `apriltags3.py` file.
+Some examples of usage can be seen in the `test.py` file.
 
 The `Detector` class is a wrapper around the Apriltags functionality. You can initialize it as following:
 

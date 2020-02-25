@@ -14,7 +14,7 @@ def mkdir(path):
 
 class CMakeExtension(Extension):
 
-    def __init__(self, name, sourcedir=[]):
+    def __init__(self, name, sourcedir=list()):
         # don't invoke the original build_ext for this special extension
         Extension.__init__(self, name, sources=[])
         self.sourcedir = os.path.abspath(sourcedir)
@@ -61,7 +61,7 @@ class build_ext(build_ext_orig):
         self.spawn(['cmake', str(cwd)+'/apriltags'] + cmake_args)
         if not self.dry_run:
             self.spawn(['cmake', '--build', '.'] + build_args)
-            self.spawn(['cp', 'lib/libapriltag.so', str(cwd/build_lib)+'/apriltags3/libapriltag.so'])
+            self.spawn(['cp', 'lib/libapriltag.so', str(cwd/build_lib)+'/dt-apriltags/libapriltag.so'])
         os.chdir(str(cwd))
 
 version = minidom.parse('apriltags/package.xml').getElementsByTagName("version")[0].childNodes[0].data
@@ -74,8 +74,9 @@ setup(
     url="https://github.com/duckietown/apriltags3-py",
     install_requires=['numpy','pathlib'],
     # package_data={'': ['apriltags/*']},
-    packages=['apriltags3'],
-    ext_modules=[CMakeExtension('apriltags', sourcedir='apriltags')],
+    packages=['dt-apriltags'],
+    long_description=open('README.md').read(),
+    ext_modules=[CMakeExtension('apriltags', sourcedir='dt-apriltags')],
     cmdclass={
         'build_ext': build_ext,
     }
