@@ -5,6 +5,8 @@ from xml.dom import minidom
 from setuptools import setup, Extension
 from setuptools.command.build_ext import build_ext as build_ext_orig
 
+POSTFIX = '.rc0'
+
 def mkdir(path):
     try:
         path.mkdir(parents=True, exist_ok=True)
@@ -61,22 +63,39 @@ class build_ext(build_ext_orig):
         self.spawn(['cmake', str(cwd)+'/apriltags'] + cmake_args)
         if not self.dry_run:
             self.spawn(['cmake', '--build', '.'] + build_args)
-            self.spawn(['cp', 'lib/libapriltag.so', str(cwd/build_lib)+'/dt-apriltags/libapriltag.so'])
+            self.spawn(['cp', 'lib/libapriltag.so', str(cwd/build_lib)+'/dt_apriltags/libapriltag.so'])
         os.chdir(str(cwd))
 
 version = minidom.parse('apriltags/package.xml').getElementsByTagName("version")[0].childNodes[0].data
 
+description = """
+dt_apriltags: Python bindings for the Apriltags library
+=======================================================
+
+These are Python bindings for the
+`Apriltags <https://github.com/AprilRobotics/apriltags>`__ library
+developed by `AprilRobotics <https://april.eecs.umich.edu/>`__. Inspired
+by the `Apriltags2 bindings <https://github.com/swatbotics/apriltag>`__
+by `Matt Zucker <https://github.com/mzucker>`__.
+
+The original library is published with a `BSD 2-Clause
+license <https://github.com/AprilRobotics/apriltag/blob/master/LICENSE.md>`__.
+
+You can find more information on how to use this library in the
+GitHub `repository <https://github.com/duckietown/dt-apriltags>`_.
+
+"""
+
 setup(
-    name='dt-apriltags',
-    version=version,
+    name='dt_apriltags',
+    version=version+POSTFIX,
     author='Aleksandar Petrov',
     author_email='alpetrov@ethz.ch',
     url="https://github.com/duckietown/dt-apriltags",
     install_requires=['numpy','pathlib'],
-    packages=['dt-apriltags'],
-    long_description=open('README.md').read(),
-    long_description_content_type="text/markdown",
-    ext_modules=[CMakeExtension('apriltags', sourcedir='dt-apriltags')],
+    packages=['dt_apriltags'],
+    long_description=description,
+    ext_modules=[CMakeExtension('apriltags', sourcedir='dt_apriltags')],
     cmdclass={
         'build_ext': build_ext,
     }
