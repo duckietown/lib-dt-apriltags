@@ -13,7 +13,7 @@ pip install --user git+https://github.com/duckietown/dt-apriltags
 ```
 And if you want a particular release, add it like this:
 ```
-pip install --user git+https://github.com/duckietown/dt-apriltags@v0.10.0rc0
+pip install --user git+https://github.com/duckietown/dt-apriltags@v3.1.1rc0
 ```
 
 ### Build it yourself
