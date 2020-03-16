@@ -9,7 +9,7 @@ The original library is published with a [BSD 2-Clause license](https://github.c
 ### The easy way
 You can install using `pip`:
 ```
-pip install --user git+https://github.com/duckietown/dt-apriltags```
+pip install --user git+https://github.com/duckietown/dt-apriltags
 ```
 And if you want a particular release, add it like this:
 ```
