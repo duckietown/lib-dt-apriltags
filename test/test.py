@@ -1,4 +1,4 @@
-from apriltags3 import Detector
+from dt_apriltags import Detector
 import numpy
 import os
 
