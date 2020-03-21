@@ -3,7 +3,6 @@
 SOURCE_DIR=/source
 OUT_DIR=/out
 TEMP_DIR=/tmp
-MANY_LINUX="manylinux2010_x86_64"
 
 mkdir -p ${TEMP_DIR}/src/
 mkdir -p ${TEMP_DIR}/out/
@@ -39,18 +38,23 @@ cp ${SO_FILE} ${TEMP_DIR}/src/dt_apriltags/
 
 # build python wheel
 printf "\n>>> BUILDING WHEEL\n"
-WHEEL_NAME=`python ${TEMP_DIR}/src/setup.py -q bdist_wheel_name`
-pip wheel ./ -w ${TEMP_DIR}/out/
+WHEEL_NAME=`python${PYTHON_VERSION} ${TEMP_DIR}/src/setup.py -q bdist_wheel_name`
+pip${PYTHON_VERSION} wheel ./ -w ${TEMP_DIR}/out/
 
-MACHINE_TYPE=`uname -m`
-if [ ${MACHINE_TYPE} == 'x86_64' ]; then
-  # turn linux_x86_64 into a manylinux wheel (amd64 machine only)
-  NEW_WHEEL_NAME=`python -c "print('-'.join('${WHEEL_NAME}'.split('-')[:3] + ['none', '${MANY_LINUX}']))"`
-  mv ${TEMP_DIR}/out/${WHEEL_NAME}.whl ${OUT_DIR}/${NEW_WHEEL_NAME}.whl
-else
-  # nothing to do
-  NEW_WHEEL_NAME=${WHEEL_NAME}
+WHEEL_PLATFORM='NOT_SET'
+if [ ${ARCH} == 'amd64' ]; then
+  # turn linux_x86_64 into a manylinux wheel
+  WHEEL_PLATFORM='manylinux2010_x86_64'
 fi
+
+if [ ${ARCH} == 'arm32v7' ]; then
+  # turn 'any' wheel into a linux_armv7l wheel
+  WHEEL_PLATFORM='linux_armv7l'
+fi
+
+# move wheel outside the container
+NEW_WHEEL_NAME=`python${PYTHON_VERSION} -c "print('-'.join('${WHEEL_NAME}'.split('-')[:3] + ['none', '${WHEEL_PLATFORM}']))"`
+mv ${TEMP_DIR}/out/${WHEEL_NAME}.whl ${OUT_DIR}/${NEW_WHEEL_NAME}.whl
 
 # give the host user ownership of the new wheel
 USER=`stat -c '%u' ${OUT_DIR}`

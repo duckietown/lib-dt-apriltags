@@ -1,5 +1,5 @@
 ROOT=$(dir $(realpath $(firstword $(MAKEFILE_LIST))))
-PYTHON_VERSION="2.7"
+PYTHON_VERSION=""
 ARCH="amd64"
 
 build:
@@ -19,17 +19,19 @@ build:
 		${ARCH}/dt_apriltags:wheel-python${$PYTHON_VERSION}
 
 upload:
-	twine upload ${ROOT}/dist
+	twine upload ${ROOT}/dist/*
 
 clean:
 	rm -rf ${ROOT}/dist/*
 
-release:
-	make build
-	make upload
-
 release-all:
 	# Python2
-	make release PYTHON_VERSION="2.7"
+	make build
 	# Python3
-	make release PYTHON_VERSION="3.6"
+	make build PYTHON_VERSION=3
+	# Python2
+	make build ARCH=arm32v7
+	# Python3
+	make build ARCH=arm32v7 PYTHON_VERSION=3
+	# push wheels
+	make upload
