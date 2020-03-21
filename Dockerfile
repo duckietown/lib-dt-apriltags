@@ -17,6 +17,10 @@ RUN apt-get update && \
     python${PYTHON_VERSION}-pip \
     cmake
 
+# install cython (needed by bdist_wheel for numpy)
+RUN pip${PYTHON_VERSION} install \
+    cython
+
 # install python libraries
 RUN pip${PYTHON_VERSION} install \
     setuptools \
