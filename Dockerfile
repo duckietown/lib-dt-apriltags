@@ -1,12 +1,42 @@
-FROM ubuntu:18.04
+ARG PYTHON_VERSION="PYTHON_VERSION_NOT_SET"
+ARG ARCH="ARCH_NOT_SET"
 
+FROM ${ARCH}/ubuntu:18.04
+
+ARG ARCH
+ARG PYTHON_VERSION
+ENV QEMU_EXECVE 1
+
+# copy QEMU
+COPY ./assets/qemu/${ARCH}/ /usr/bin/
+
+# install python and cmake
 RUN apt-get update && \
-  apt-get install -y python python3 python-pip python3-pip cmake
-RUN  pip install setuptools pathlib twine>=1.14.0 wheel>=0.31.0 && \
-  pip3 install setuptools twine>=1.14.0
+  apt-get install -y \
+    python${PYTHON_VERSION} \
+    python${PYTHON_VERSION}-pip \
+    cmake
 
-COPY . /dt-apriltags
+# install cython (needed by bdist_wheel for numpy)
+RUN pip${PYTHON_VERSION} install \
+    cython
 
-WORKDIR /dt-apriltags
+# install python libraries
+RUN pip${PYTHON_VERSION} install \
+    setuptools \
+    numpy \
+    bdist-wheel-name \
+    wheel>=0.31.0
 
-CMD ./build_script.sh
+# install building script
+COPY ./assets/build.sh /build.sh
+
+# prepare environment
+ENV ARCH=${ARCH}
+ENV PYTHON_VERSION=${PYTHON_VERSION}
+RUN mkdir /source
+RUN mkdir /out
+WORKDIR /source
+
+# define command
+CMD /build.sh
