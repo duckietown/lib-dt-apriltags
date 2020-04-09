@@ -126,3 +126,19 @@ If you also want to extract the tag pose, `estimate_tag_pose` should be set to `
 ## Custom layouts
 
 If you want to use a custom layout, you need to create the C source and header files for it and then build the library again. Then use the new `libapriltag.so` library. You can find more information on the original [Apriltags repository](https://github.com/AprilRobotics/apriltags).
+
+
+## Developer notes
+
+The wheel is built inside a Docker container. The Dockerfile in the root of this repository is a template for the build environment. The build environment is based on `ubuntu:18.04` and the correct version of python is installed on the fly.
+The `make build` command will create the build environment if it does not exist before building the wheel.
+
+Once the build environment (Docker image) is ready, a Docker container is launched with the following configuration:
+- the root of this repository mounted to `/source`;
+- the directory `dist/` is mounted as destination directory under `/out`;
+
+The building script from `assets/build.sh` will be executed inside the container. The build steps are:
+- copy source ode from `/source` to a temp location (inside the container)
+- build apriltag library from submodule `apriltags/` (will produce a .so library file)
+- build python wheel (the .so library is embedded as `package_data`)
+- copy wheel file to `/out` (will pop up in `dist/` outside the container)
