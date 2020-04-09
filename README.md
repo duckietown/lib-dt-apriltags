@@ -14,7 +14,7 @@ pip install dt-apriltags
 
 And if you want a particular release, add it like this:
 ```
-pip install dt-apriltags@v3.1.1rc0
+pip install dt-apriltags@v3.1.1
 ```
 
 ### Build it yourself
