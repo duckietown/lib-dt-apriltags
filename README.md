@@ -1,41 +1,81 @@
 # dt-apriltags: Python bindings for the Apriltags library
 
-These are Python bindings for the [Apriltags](https://github.com/AprilRobotics/apriltags) library developed by [AprilRobotics](https://april.eecs.umich.edu/). Inspired by the [Apriltags2 bindings](https://github.com/swatbotics/apriltag) by [Matt Zucker](https://github.com/mzucker).
+These are Python bindings for the [Apriltags 3](https://github.com/AprilRobotics/apriltags) library developed by [AprilRobotics](https://april.eecs.umich.edu/). Inspired by the [Apriltags2 bindings](https://github.com/swatbotics/apriltag) by [Matt Zucker](https://github.com/mzucker).
 
 The original library is published with a [BSD 2-Clause license](https://github.com/AprilRobotics/apriltag/blob/master/LICENSE.md). 
 
 ## Installation
 
 ### The easy way
-You can install using `pip`:
+You can install using `pip` (or `pip3` for Python 3):
 ```
-pip install --user git+https://github.com/duckietown/dt-apriltags
+pip install dt-apriltags
 ```
+
 And if you want a particular release, add it like this:
 ```
-pip install --user git+https://github.com/duckietown/dt-apriltags@v3.1.1rc0
+pip install dt-apriltags@v3.1.1rc0
 ```
 
 ### Build it yourself
 
 Clone this repository and navigate in it. Then initialize the Apriltags submodule:
-
 ```
 $ git submodule init
 $ git submodule update
 ```
-Build the Apriltags C library. Keep in mind you need to have OpenCV installed beforehand.
 
+Build the Apriltags C library and embed the newly-built library into the pip wheel.
 ```
-$ cd apriltags
-$ cmake .
-$ make
+$ make build
 ```
-If building Apriltags was successful, you should be able to run the demo.
+
+The new wheel will be available in the directory `dist/`.
+You can now install the wheel
+```
+pip install dt_apriltags-VERSION-pyPYMAJOR-none-ARCH.whl
+```
+NOTE: based on the current `VERSION` of this library and the version of Python used `PYMAJOR`, together with the architecture of your CPU `ARCH`, the filename above varies.
+
+
+#### Build for Python 3
+
+This library supports building wheels for Python `2` and `3`. Python 2 will be used by default.
+Use the following command to build for Python 3.
+```
+make build PYTHON_VERSION=3
+```
+
+
+#### Build for different architecture
+
+This library supports building wheels for the CPU architectures `amd64`, `arm32v7`, and `arm64v8`. Default architecture is `amd64`.
+When building wheels for ARM architectures, QEMU will be used to emulate the target CPU.
+Use the following command to build for `arm32v7` architecture.
+```
+make build ARCH=arm32v7
+```
+
+
+## Release wheels
+
+All the wheels built inside `dist/` can be released (pushed to Pypi.org) by running the command
+```
+make upload
+```
+
+
+### Release all
+
+Use the following command to build and release wheels for Python 2 and 3 and CPU architecture `amd64` and `arm32v7`.
+```
+make release-all
+```
+
 
 ## Usage
-Some examples of usage can be seen in the `test.py` file.
 
+Some examples of usage can be seen in the `test.py` file.
 The `Detector` class is a wrapper around the Apriltags functionality. You can initialize it as following:
 
 ```
@@ -84,4 +124,5 @@ If you also want to extract the tag pose, `estimate_tag_pose` should be set to `
 | pose_err*       	| Object-space error of the estimation.                                                                                                                                                                                                                                                                                                                                                                      	|
 
 ## Custom layouts
+
 If you want to use a custom layout, you need to create the C source and header files for it and then build the library again. Then use the new `libapriltag.so` library. You can find more information on the original [Apriltags repository](https://github.com/AprilRobotics/apriltags).
