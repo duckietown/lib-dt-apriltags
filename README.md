@@ -138,7 +138,7 @@ Once the build environment (Docker image) is ready, a Docker container is launch
 - the directory `dist/` is mounted as destination directory under `/out`;
 
 The building script from `assets/build.sh` will be executed inside the container. The build steps are:
-- copy source ode from `/source` to a temp location (inside the container)
+- copy source code from `/source` to a temp location (inside the container)
 - build apriltag library from submodule `apriltags/` (will produce a .so library file)
 - build python wheel (the .so library is embedded as `package_data`)
 - copy wheel file to `/out` (will pop up in `dist/` outside the container)
