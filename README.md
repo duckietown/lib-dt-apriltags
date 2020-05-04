@@ -1,4 +1,4 @@
-# dt-apriltags: Python bindings for the Apriltags library
+# lib-dt-apriltags: Python bindings for the Apriltags library
 
 These are Python bindings for the [Apriltags 3](https://github.com/AprilRobotics/apriltags) library developed by [AprilRobotics](https://april.eecs.umich.edu/). Inspired by the [Apriltags2 bindings](https://github.com/swatbotics/apriltag) by [Matt Zucker](https://github.com/mzucker).
 
