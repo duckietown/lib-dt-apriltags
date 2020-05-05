@@ -29,7 +29,7 @@ setup(
     version=version+POSTFIX,
     author='Aleksandar Petrov',
     author_email='alpetrov@ethz.ch',
-    url="https://github.com/duckietown/dt-apriltags",
+    url="https://github.com/duckietown/lib-dt-apriltags",
     install_requires=['numpy'],
     packages=['dt_apriltags'],
     long_description=description,
