@@ -57,6 +57,8 @@ class _ZArray(ctypes.Structure):
 class _ApriltagCameraInfo(ctypes.Structure):
     '''Wraps apriltag_camera_info_t C struct.'''
     _fields_ = [
+        ('width', ctypes.c_int),
+        ('height', ctypes.c_int),
         ('K', ctypes.c_float * 9),
         ('D', ctypes.c_float * 8),
         ('P', ctypes.c_float * 12),
@@ -318,9 +320,9 @@ class Detector(object):
         self.tag_detector_ptr.contents.decode_sharpening = int(self.params['decode_sharpening'])
         self.tag_detector_ptr.contents.debug = int(self.params['debug'])
 
-    def enable_rectification_step(self, K, D, P):
+    def enable_rectification_step(self, width, height, K, D, P):
         # create the camera info object
-        cinfo = _ApriltagCameraInfo(K, D, P)
+        cinfo = _ApriltagCameraInfo(width, height, K, D, P)
         # enable ad-hoc rectification step
         self.libc.apriltag_detector_enable_rectification_step.restype = None
         self.libc.apriltag_detector_enable_rectification_step(self.tag_detector_ptr, cinfo)
