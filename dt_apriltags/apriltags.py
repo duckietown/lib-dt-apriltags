@@ -320,10 +320,10 @@ class Detector(object):
 
     def enable_rectification_step(self, K, D, P):
         # create the camera info object
-        cinfo_ptr = ctypes.byref(_ApriltagCameraInfo(K, D, P))
+        cinfo = _ApriltagCameraInfo(K, D, P)
         # enable ad-hoc rectification step
         self.libc.apriltag_detector_enable_rectification_step.restype = None
-        self.libc.apriltag_detector_enable_rectification_step(self.tag_detector_ptr, cinfo_ptr)
+        self.libc.apriltag_detector_enable_rectification_step(self.tag_detector_ptr, cinfo)
 
     def __del__(self):
         if self.tag_detector_ptr is not None:
