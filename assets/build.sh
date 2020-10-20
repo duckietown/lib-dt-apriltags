@@ -42,6 +42,7 @@ WHEEL_NAME=`python${PYTHON_VERSION} ${TEMP_DIR}/src/setup.py -q bdist_wheel_name
 pip${PYTHON_VERSION} wheel ./ -w ${TEMP_DIR}/out/
 
 WHEEL_PLATFORM='NOT_SET'
+
 if [ ${ARCH} == 'amd64' ]; then
   # turn linux_x86_64 into a manylinux wheel
   WHEEL_PLATFORM='manylinux2010_x86_64'
@@ -50,6 +51,11 @@ fi
 if [ ${ARCH} == 'arm32v7' ]; then
   # turn 'any' wheel into a linux_armv7l wheel
   WHEEL_PLATFORM='linux_armv7l'
+fi
+
+if [ ${ARCH} == 'arm64v8' ]; then
+  # turn 'any' wheel into a linux_aarch64 wheel
+  WHEEL_PLATFORM='manylinux2014_aarch64'
 fi
 
 # move wheel outside the container

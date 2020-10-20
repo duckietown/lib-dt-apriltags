@@ -33,5 +33,9 @@ release-all:
 	make build ARCH=arm32v7
 	# Python3
 	make build ARCH=arm32v7 PYTHON_VERSION=3
+	# Python2
+	make build ARCH=arm64v8
+	# Python3
+	make build ARCH=arm64v8 PYTHON_VERSION=3
 	# push wheels
 	make upload
