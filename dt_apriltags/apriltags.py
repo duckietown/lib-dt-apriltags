@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-'''Python wrapper for C version of apriltags. This program creates two
+"""Python wrapper for C version of apriltags. This program creates two
 classes that are used to detect apriltags and extract information from
 them. Using this module, you can identify all apriltags visible in an
 image, and get information about the location and orientation of the
@@ -9,23 +9,26 @@ tags.
 Original author: Isaac Dulin, Spring 2016
 Updates: Matt Zucker, Fall 2016
 Apriltags 3 version: Aleksandar Petrov, Spring 2019
+Current maintainer: Andrea F. Daniele
 
-'''
+"""
 from __future__ import division
 from __future__ import print_function
 
 import ctypes
 import os
+
 import numpy
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
+
 
 ######################################################################
 
 # pylint: disable=R0903
 
 class _ImageU8(ctypes.Structure):
-    '''Wraps image_u8 C struct.'''
+    """Wraps image_u8 C struct."""
     _fields_ = [
         ('width', ctypes.c_int),
         ('height', ctypes.c_int),
@@ -33,16 +36,18 @@ class _ImageU8(ctypes.Structure):
         ('buf', ctypes.POINTER(ctypes.c_uint8))
     ]
 
+
 class _Matd(ctypes.Structure):
-    '''Wraps matd C struct.'''
+    """Wraps matd C struct."""
     _fields_ = [
         ('nrows', ctypes.c_int),
         ('ncols', ctypes.c_int),
-        ('data', ctypes.c_double*1),
+        ('data', ctypes.c_double * 1),
     ]
 
+
 class _ZArray(ctypes.Structure):
-    '''Wraps zarray C struct.'''
+    """Wraps zarray C struct."""
     _fields_ = [
         ('el_sz', ctypes.c_size_t),
         ('size', ctypes.c_int),
@@ -50,8 +55,9 @@ class _ZArray(ctypes.Structure):
         ('data', ctypes.c_void_p)
     ]
 
+
 class _ApriltagFamily(ctypes.Structure):
-    '''Wraps apriltag_family C struct.'''
+    """Wraps apriltag_family C struct."""
     _fields_ = [
         ('ncodes', ctypes.c_uint32),
         ('codes', ctypes.POINTER(ctypes.c_uint64)),
@@ -65,20 +71,22 @@ class _ApriltagFamily(ctypes.Structure):
         ('name', ctypes.c_char_p),
     ]
 
+
 class _ApriltagDetection(ctypes.Structure):
-    '''Wraps apriltag_detection C struct.'''
+    """Wraps apriltag_detection C struct."""
     _fields_ = [
         ('family', ctypes.POINTER(_ApriltagFamily)),
         ('id', ctypes.c_int),
         ('hamming', ctypes.c_int),
         ('decision_margin', ctypes.c_float),
         ('H', ctypes.POINTER(_Matd)),
-        ('c', ctypes.c_double*2),
-        ('p', (ctypes.c_double*2)*4)
+        ('c', ctypes.c_double * 2),
+        ('p', (ctypes.c_double * 2) * 4)
     ]
 
+
 class _ApriltagDetector(ctypes.Structure):
-    '''Wraps apriltag_detector C struct.'''
+    """Wraps apriltag_detector C struct."""
     _fields_ = [
         ('nthreads', ctypes.c_int),
         ('quad_decimate', ctypes.c_float),
@@ -88,8 +96,9 @@ class _ApriltagDetector(ctypes.Structure):
         ('debug', ctypes.c_int)
     ]
 
+
 class _ApriltagDetectionInfo(ctypes.Structure):
-    '''Wraps apriltag_detection_info C struct.'''
+    """Wraps apriltag_detection_info C struct."""
     _fields_ = [
         ('det', ctypes.POINTER(_ApriltagDetection)),
         ('tagsize', ctypes.c_double),
@@ -99,19 +108,22 @@ class _ApriltagDetectionInfo(ctypes.Structure):
         ('cy', ctypes.c_double)
     ]
 
+
 class _ApriltagPose(ctypes.Structure):
-    '''Wraps apriltag_pose C struct.'''
+    """Wraps apriltag_pose C struct."""
     _fields_ = [
         ('R', ctypes.POINTER(_Matd)),
-        ('t',  ctypes.POINTER(_Matd))
+        ('t', ctypes.POINTER(_Matd))
     ]
+
 
 ######################################################################
 
 def _ptr_to_array2d(datatype, ptr, rows, cols):
-    array_type = (datatype*cols)*rows
+    array_type = (datatype * cols) * rows
     array_buf = array_type.from_address(ctypes.addressof(ptr))
     return numpy.ctypeslib.as_array(array_buf, shape=(rows, cols))
+
 
 def _image_u8_get_array(img_ptr):
     return _ptr_to_array2d(ctypes.c_uint8,
@@ -119,29 +131,30 @@ def _image_u8_get_array(img_ptr):
                            img_ptr.contents.height,
                            img_ptr.contents.stride)
 
+
 def _matd_get_array(mat_ptr):
     return _ptr_to_array2d(ctypes.c_double,
                            mat_ptr.contents.data,
                            int(mat_ptr.contents.nrows),
                            int(mat_ptr.contents.ncols))
 
-def zarray_get(za, idx, ptr):
 
+def zarray_get(za, idx, ptr):
     # memcpy(p, &za->data[idx*za->el_sz], za->el_sz);
     #
     # p                           = ptr
     # za->el_sz                   = za.contents.el_sz
     # &za->data[idx*za->el_sz]    = za.contents.data+idx*za.contents.el_sz
 
-
-    ctypes.memmove(ptr, za.contents.data+idx*za.contents.el_sz, za.contents.el_sz)
+    ctypes.memmove(ptr, za.contents.data + idx * za.contents.el_sz, za.contents.el_sz)
 
 
 ######################################################################
 
 class Detection():
-
-    '''Combined pythonic wrapper for apriltag_detection and apriltag_pose'''
+    """
+    Combined pythonic wrapper for apriltag_detection and apriltag_pose
+    """
 
     def __init__(self):
         self.tag_family = None
@@ -156,17 +169,17 @@ class Detection():
         self.pose_err = None
 
     def __str__(self):
-        return('Detection object:'+
-        '\ntag_family = ' + str(self.tag_family)+
-        '\ntag_id = ' + str(self.tag_id)+
-        '\nhamming = ' + str(self.hamming)+
-        '\ndecision_margin = ' + str(self.decision_margin)+
-        '\nhomography = ' + str(self.homography)+
-        '\ncenter = ' + str(self.center)+
-        '\ncorners = ' + str(self.corners)+
-        '\npose_R = ' + str(self.pose_R)+
-        '\npose_t = ' + str(self.pose_t)+
-        '\npose_err = ' + str(self.pose_err)+'\n')
+        return ('Detection object:' +
+                '\ntag_family = ' + str(self.tag_family) +
+                '\ntag_id = ' + str(self.tag_id) +
+                '\nhamming = ' + str(self.hamming) +
+                '\ndecision_margin = ' + str(self.decision_margin) +
+                '\nhomography = ' + str(self.homography) +
+                '\ncenter = ' + str(self.center) +
+                '\ncorners = ' + str(self.corners) +
+                '\npose_R = ' + str(self.pose_R) +
+                '\npose_t = ' + str(self.pose_t) +
+                '\npose_err = ' + str(self.pose_err) + '\n')
 
     def __repr__(self):
         return self.__str__()
@@ -175,8 +188,8 @@ class Detection():
 ######################################################################
 
 class Detector(object):
-
-    '''Pythonic wrapper for apriltag_detector.
+    """
+    Pythonic wrapper for apriltag_detector.
 
     families: Tag families, separated with a space, default: tag36h11
 
@@ -193,17 +206,17 @@ class Detector(object):
     searchpath: Where to look for the Apriltag 3 library, must be a list, default: ['apriltags']
 
     debug: If 1, will save debug images. Runs very slow, default: 0
-    '''
+    """
 
     def __init__(self,
-                families='tag36h11',
-                nthreads=1,
-                quad_decimate=2.0,
-                quad_sigma=0.0,
-                refine_edges=1,
-                decode_sharpening=0.25,
-                debug=0,
-                searchpath=['apriltags', '.', dir_path]):
+                 families='tag36h11',
+                 nthreads=1,
+                 quad_decimate=2.0,
+                 quad_sigma=0.0,
+                 refine_edges=1,
+                 decode_sharpening=0.25,
+                 debug=0,
+                 searchpath=['apriltags', '.', dir_path]):
 
         # Parse the parameters
         self.params = dict()
@@ -222,7 +235,7 @@ class Detector(object):
         else:
             extension = '.so'
 
-        filename = 'libapriltag'+extension
+        filename = 'libapriltag' + extension
 
         self.libc = None
         self.tag_detector = None
@@ -243,7 +256,6 @@ class Detector(object):
         if self.libc is None:
             raise RuntimeError('could not find DLL named ' + filename)
 
-
         # create the c-_apriltag_detector object
         self.libc.apriltag_detector_create.restype = ctypes.POINTER(_ApriltagDetector)
         self.tag_detector_ptr = self.libc.apriltag_detector_create()
@@ -253,36 +265,44 @@ class Detector(object):
         self.tag_families = dict()
         if 'tag16h5' in self.params['families']:
             self.libc.tag16h5_create.restype = ctypes.POINTER(_ApriltagFamily)
-            self.tag_families['tag16h5']=self.libc.tag16h5_create()
-            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr, self.tag_families['tag16h5'], 2)
+            self.tag_families['tag16h5'] = self.libc.tag16h5_create()
+            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr,
+                                                        self.tag_families['tag16h5'], 2)
         elif 'tag25h9' in self.params['families']:
             self.libc.tag25h9_create.restype = ctypes.POINTER(_ApriltagFamily)
-            self.tag_families['tag25h9']=self.libc.tag25h9_create()
-            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr, self.tag_families['tag25h9'], 2)
+            self.tag_families['tag25h9'] = self.libc.tag25h9_create()
+            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr,
+                                                        self.tag_families['tag25h9'], 2)
         elif 'tag36h11' in self.params['families']:
             self.libc.tag36h11_create.restype = ctypes.POINTER(_ApriltagFamily)
-            self.tag_families['tag36h11']=self.libc.tag36h11_create()
-            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr, self.tag_families['tag36h11'], 2)
+            self.tag_families['tag36h11'] = self.libc.tag36h11_create()
+            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr,
+                                                        self.tag_families['tag36h11'], 2)
         elif 'tagCircle21h7' in self.params['families']:
             self.libc.tagCircle21h7_create.restype = ctypes.POINTER(_ApriltagFamily)
-            self.tag_families['tagCircle21h7']=self.libc.tagCircle21h7_create()
-            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr, self.tag_families['tagCircle21h7'], 2)
+            self.tag_families['tagCircle21h7'] = self.libc.tagCircle21h7_create()
+            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr,
+                                                        self.tag_families['tagCircle21h7'], 2)
         elif 'tagCircle49h12' in self.params['families']:
             self.libc.tagCircle49h12_create.restype = ctypes.POINTER(_ApriltagFamily)
-            self.tag_families['tagCircle49h12']=self.libc.tagCircle49h12_create()
-            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr, self.tag_families['tagCircle49h12'], 2)
+            self.tag_families['tagCircle49h12'] = self.libc.tagCircle49h12_create()
+            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr,
+                                                        self.tag_families['tagCircle49h12'], 2)
         elif 'tagCustom48h12' in self.params['families']:
             self.libc.tagCustom48h12_create.restype = ctypes.POINTER(_ApriltagFamily)
-            self.tag_families['tagCustom48h12']=self.libc.tagCustom48h12_create()
-            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr, self.tag_families['tagCustom48h12'], 2)
+            self.tag_families['tagCustom48h12'] = self.libc.tagCustom48h12_create()
+            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr,
+                                                        self.tag_families['tagCustom48h12'], 2)
         elif 'tagStandard41h12' in self.params['families']:
             self.libc.tagStandard41h12_create.restype = ctypes.POINTER(_ApriltagFamily)
-            self.tag_families['tagStandard41h12']=self.libc.tagStandard41h12_create()
-            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr, self.tag_families['tagStandard41h12'], 2)
+            self.tag_families['tagStandard41h12'] = self.libc.tagStandard41h12_create()
+            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr,
+                                                        self.tag_families['tagStandard41h12'], 2)
         elif 'tagStandard52h13' in self.params['families']:
             self.libc.tagStandard52h13_create.restype = ctypes.POINTER(_ApriltagFamily)
-            self.tag_families['tagStandard52h13']=self.libc.tagStandard52h13_create()
-            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr, self.tag_families['tagStandard52h13'], 2)
+            self.tag_families['tagStandard52h13'] = self.libc.tagStandard52h13_create()
+            self.libc.apriltag_detector_add_family_bits(self.tag_detector_ptr,
+                                                        self.tag_families['tagStandard52h13'], 2)
         else:
             raise Exception('Unrecognized tag family name. Use e.g. \'tag36h11\'.\n')
 
@@ -293,8 +313,6 @@ class Detector(object):
         self.tag_detector_ptr.contents.refine_edges = int(self.params['refine_edges'])
         self.tag_detector_ptr.contents.decode_sharpening = int(self.params['decode_sharpening'])
         self.tag_detector_ptr.contents.debug = int(self.params['debug'])
-
-
 
     def __del__(self):
         if self.tag_detector_ptr is not None:
@@ -330,10 +348,10 @@ class Detector(object):
             self.libc.apriltag_detector_destroy(self.tag_detector_ptr)
 
     def detect(self, img, estimate_tag_pose=False, camera_params=None, tag_size=None):
-
-        '''Run detectons on the provided image. The image must be a grayscale
-image of type numpy.uint8.'''
-
+        """
+        Run detectons on the provided image. The image must be a grayscale
+        image of type numpy.uint8.
+        """
         assert len(img.shape) == 2
         assert img.dtype == numpy.uint8
 
@@ -341,21 +359,21 @@ image of type numpy.uint8.'''
 
         return_info = []
 
-        #detect apriltags in the image
+        # detect apriltags in the image
         self.libc.apriltag_detector_detect.restype = ctypes.POINTER(_ZArray)
         detections = self.libc.apriltag_detector_detect(self.tag_detector_ptr, c_img)
 
         apriltag = ctypes.POINTER(_ApriltagDetection)()
 
-
         for i in range(0, detections.contents.size):
 
-            #extract the data for each apriltag that was identified
+            # extract the data for each apriltag that was identified
             zarray_get(detections, i, ctypes.byref(apriltag))
 
             tag = apriltag.contents
 
-            homography = _matd_get_array(tag.H).copy() # numpy.zeros((3,3))  # Don't ask questions, move on with your life
+            homography = _matd_get_array(
+                tag.H).copy()  # numpy.zeros((3,3))  # Don't ask questions, move on with your life
             center = numpy.ctypeslib.as_array(tag.c, shape=(2,)).copy()
             corners = numpy.ctypeslib.as_array(tag.p, shape=(4, 2)).copy()
 
@@ -369,12 +387,14 @@ image of type numpy.uint8.'''
             detection.corners = corners
 
             if estimate_tag_pose:
-                if camera_params==None:
-                    raise Exception('camera_params must be provided to detect if estimate_tag_pose is set to True')
-                if tag_size==None:
-                    raise Exception('tag_size must be provided to detect if estimate_tag_pose is set to True')
+                if camera_params == None:
+                    raise Exception(
+                        'camera_params must be provided to detect if estimate_tag_pose is set to True')
+                if tag_size == None:
+                    raise Exception(
+                        'tag_size must be provided to detect if estimate_tag_pose is set to True')
 
-                camera_fx, camera_fy, camera_cx, camera_cy = [ c for c in camera_params ]
+                camera_fx, camera_fy, camera_cx, camera_cy = [c for c in camera_params]
 
                 info = _ApriltagDetectionInfo(det=apriltag,
                                               tagsize=tag_size,
@@ -392,7 +412,8 @@ image of type numpy.uint8.'''
                 detection.pose_err = err
 
 
-            #Append this dict to the tag data array
+
+            # append this dict to the tag data array
             return_info.append(detection)
 
         self.libc.image_u8_destroy.restype = None
@@ -403,9 +424,7 @@ image of type numpy.uint8.'''
 
         return return_info
 
-
     def _convert_image(self, img):
-
         height = img.shape[0]
         width = img.shape[1]
 
