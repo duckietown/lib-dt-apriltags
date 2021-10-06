@@ -411,7 +411,11 @@ class Detector(object):
                 detection.pose_t = _matd_get_array(pose.t).copy()
                 detection.pose_err = err
 
+                self.libc.matd_destroy.restype = None
+                self.libc.matd_destroy(pose.R)
 
+                self.libc.matd_destroy.restype = None
+                self.libc.matd_destroy(pose.t)
 
             # append this dict to the tag data array
             return_info.append(detection)
