@@ -31,7 +31,7 @@ at_detector = Detector(families='tag36h11',
                        debug=0)
 
 with open(test_images_path + '/test_info.yaml', 'r') as stream:
-    parameters = yaml.load(stream)
+    parameters = yaml.safe_load(stream)
 
 #### test WITH THE SAMPLE IMAGE ####
 
