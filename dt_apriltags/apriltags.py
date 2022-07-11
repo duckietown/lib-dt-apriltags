@@ -17,6 +17,7 @@ from __future__ import print_function
 
 import ctypes
 import os
+from typing import Iterable, List, Optional
 
 import numpy
 
@@ -157,16 +158,16 @@ class Detection():
     """
 
     def __init__(self):
-        self.tag_family = None
-        self.tag_id = None
-        self.hamming = None
-        self.decision_margin = None
-        self.homography = None
-        self.center = None
-        self.corners = None
-        self.pose_R = None
-        self.pose_t = None
-        self.pose_err = None
+        self.tag_family: bytes = None
+        self.tag_id: int = None
+        self.hamming: int = None
+        self.decision_margin: float = None
+        self.homography: numpy.ndarray = None
+        self.center: numpy.ndarray = None
+        self.corners: numpy.ndarray = None
+        self.pose_R: numpy.ndarray = None
+        self.pose_t: numpy.ndarray = None
+        self.pose_err: float = None
 
     def __str__(self):
         return ('Detection object:' +
@@ -347,7 +348,7 @@ class Detector(object):
             self.libc.apriltag_detector_destroy.restype = None
             self.libc.apriltag_detector_destroy(self.tag_detector_ptr)
 
-    def detect(self, img, estimate_tag_pose=False, camera_params=None, tag_size=None):
+    def detect(self, img: numpy.ndarray, estimate_tag_pose=False, camera_params: Optional[Iterable[float]]=None, tag_size: Optional[float]=None) -> List[Detection]:
         """
         Run detectons on the provided image. The image must be a grayscale
         image of type numpy.uint8.
