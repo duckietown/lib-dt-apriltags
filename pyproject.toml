@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "apriltags"
+name = "dt-apriltags"
 version = "0.0.0"
 description = "apriltags"
 authors = []
