@@ -1,3 +1,11 @@
+[tool.poetry]
+name = "apriltags"
+version = "0.0.0"
+description = "apriltags"
+authors = []
+readme = "README.md"
+repository = "https://github.com/terraform-industries/lib-dt-apriltags"
+
 [build-system]
 requires = ["setuptools>=40.8.0", "numpy", "wheel"]
 build-backend = "setuptools.build_meta:__legacy__"
