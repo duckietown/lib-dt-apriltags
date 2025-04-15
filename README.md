@@ -79,6 +79,8 @@ Some examples of usage can be seen in the `test.py` file.
 The `Detector` class is a wrapper around the Apriltags functionality. You can initialize it as following:
 
 ```
+from dt_apriltags import Detector
+
 at_detector = Detector(searchpath=['apriltags'],
                        families='tag36h11',
                        nthreads=1,
